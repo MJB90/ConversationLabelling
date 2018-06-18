@@ -1,0 +1,94 @@
+.Rproj.user
+.Rhistory
+.RData
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+*.pyc
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+*.pot
+Junk/
+Junk/*
+Model_Tracker/
+Model_Tracker/*
+Send_Database/*
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+data/
+# Mac Cruft
+*.DS_store
+
+# Local Settings
+local_settings.py
+backend/settings/local.py
+
+#pycharm
+.idea
+.iml
+complaint-analytics-search-tool.iml
+
+coverage/
+download/*
+data/*
+model_output/*
+model_data/*
+
+data1/*
+data1/
+model_test/*
+
+*.Rproj
+*.log
+*.txt
+
+model_data1/*
+model_output1/*
+ModelDocuments/*
+
+all.js
+all.min.js
+user_out/*
