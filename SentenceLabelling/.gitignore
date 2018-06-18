@@ -18,6 +18,11 @@ output/
 
 venv/
 .idea/
+.idea/*
+
+SentenceLabelling/.idea/
+SentenceLabelling/venv/
+
 # Distribution / packaging
 .Python
 env/
