@@ -1,8 +1,9 @@
 # ConversationLabelling
 Steps:
-1.Pre processing 
+1.Pre processing (preProcess/preProcess.py)
 --change the directory path of train_path (give the path of your trainData folder)
 --change the directory path of data_path (give the path of your csv file)
+--Run preProcess.py
 
 After this step all the conversations goes into trainData Folder along with some of the features.
 
