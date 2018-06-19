@@ -15,6 +15,7 @@ __pycache__/
 
 data/
 output/
+work_dir/
 
 venv/
 .idea/
