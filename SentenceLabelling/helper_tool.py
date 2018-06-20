@@ -42,7 +42,6 @@ PosTag = namedtuple("PosTag", ("token", "pos"))
 
 def _dict_to_dialog_utterance(du_dict):
     """Private method for converting a dict to a DialogUtterance."""
-    du_dict.pop("", None)
     du_dict.pop("type", None)
 
     # Remove anything with

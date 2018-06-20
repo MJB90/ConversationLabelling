@@ -2,7 +2,6 @@ import pandas as pd
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-import os
 
 '''
 ->This file is used to extract the various conversations in the file.
@@ -118,7 +117,7 @@ def get_pos(sentence):
     return pos_tag
 
 
-def extract_conversation():
+def extract_conversation(train_path, data_path):
     temp_df = pd.DataFrame(columns=['speaker', 'thread_number', 'label', 'type', 'pos', 'utterance'])
     count = 0
     existing_speakers = {}
@@ -133,7 +132,7 @@ def extract_conversation():
             # update file count
             count = count + 1
             filename = train_path + str(count) + ".csv"
-            temp_df.to_csv(filename)
+            temp_df.to_csv(filename, index=False)
 
             # Clear the temporary data frame and dictionary for making it
             # ready for the next conversation data frame
@@ -183,11 +182,10 @@ def extract_conversation():
 
             temp_df.loc[-1] = [to_insert_speaker, num_utterance, row['label'], row['type'], pos_tag, sentence]
             temp_df.index = temp_df.index + 1
+    return count
 
 
-cwd = os.getcwd()
-directory = str(cwd)
-directory = directory.replace("preProcess", "")
-train_path = directory + "\\trainData\\"
-data_path = directory + "\\data\\xboxDataId.csv"
-extract_conversation()
+def run_pre_process(train_path, data_path):
+    count = extract_conversation(train_path, data_path)
+    return count
+    

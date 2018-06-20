@@ -1,16 +1,14 @@
+import glob
 import os
-
 from featureGenerator import features
 from featureGenerator import tfidf
 from helper_tool import get_data_file_name
-import pycrfsuite
 import time
 from sklearn.metrics import accuracy_score
 import numpy as np
 from sklearn_crfsuite import CRF
+import pandas as pd
 
-trainer = pycrfsuite.Trainer(verbose=False)
-iterations = 100
 labels = {'REQ': 0, 'ANSW': 1, 'COMPLIM': 2, 'ANNOU': 3, 'THK': 4, 'RESPOS': 5, 'APOL': 6, 'RCPT': 7, 'COMPLAINT': 8}
 
 
@@ -45,59 +43,12 @@ def get_conversation_data(dir_path, is_train):
     return x, y
 
 
-def test_for_accuracy(training_dir_path, binary_model_file, test_dir_path):
-    global trainer
-    global labels
-
-    # Get the training Data
-    x_train, y_train = get_conversation_data(training_dir_path, True)
-
-    print("Loaded Training Data")
-
-    for x_sequence, y_sequence in zip(x_train, y_train):
-        trainer.append(x_sequence, y_sequence)
-
-    # Get Testing Data
-    x_test, y_test = get_conversation_data(test_dir_path, False)
-
-    print("Loaded Testing Data")
-
-    trainer.set_params({
-        # coefficient for L1 penalty
-        'c1': 0.1,
-
-        # coefficient for L2 penalty
-        'c2': 0.001,
-
-        # maximum number of iterations
-        'max_iterations': 200,
-
-        # whether to include transitions that
-        # are possible, but not observed
-        'feature.possible_transitions': True
-    })
-    # trainer.select(algorithm='lbfgs')
-    trainer.train(binary_model_file)
-    tagger = pycrfsuite.Tagger()
-    tagger.open(binary_model_file)
-    y_prediction = [tagger.tag(x_seq) for x_seq in x_test]
-
-    predictions = np.array([labels[tag] for row in y_prediction for tag in row])
-    truths = np.array([labels[tag] for row in y_test for tag in row])
-
-    print("CRF :" + str(accuracy_score(truths, predictions)))
-
-
 def test_accuracy(training_dir_path, test_dir_path):
-    global trainer
     global labels
 
     # Get the training Data
     x_train, y_train = get_conversation_data(training_dir_path, True)
     print("Loaded Training Data")
-
-    for x_sequence, y_sequence in zip(x_train, y_train):
-        trainer.append(x_sequence, y_sequence)
 
     # Get Testing Data
     x_test, y_test = get_conversation_data(test_dir_path, False)
@@ -120,36 +71,31 @@ def test_accuracy(training_dir_path, test_dir_path):
     print("CRF :" + str(accuracy_score(truths, predictions)))
 
 
-def train_crf_model(binary_model_file):
-    # for param in trainer.get_params():
-    #    print(param, trainer.help(param))
-    trainer.set_params({
-        'c1': 1.0,  # coefficient for L1 penalty
-        'c2': 1e-3,  # coefficient for L2 penalty
-        'max_iterations': iterations,  # stop earlier
+def test_train_split(number_of_conversations, train_data_percent, training_dir_path, test_dir_path):
+    num_in_train = number_of_conversations * train_data_percent
+    num_in_test = number_of_conversations - num_in_train
+    dialog_filenames = sorted(glob.glob(os.path.join(training_dir_path, "*.csv")))
+    count = 0
+    cwd = os.getcwd()
+    directory = str(cwd)
+    for dialog_filename in dialog_filenames:
+        df = pd.read_csv(dialog_filename)
+        dialog_filename = dialog_filename.replace("trainData\\", "")
+        to_remove = directory + "\\trainData" + "\\" + str(dialog_filename)
+        os.remove(to_remove)
+        file_name = test_dir_path + str(dialog_filename)
+        df.to_csv(file_name, index=False)
+        count += 1
+        if count == num_in_test:
+            break
 
-        # include transitions that are possible, but not observed
-        'feature.possible_transitions': True
-    })
-    trainer.train(binary_model_file)
 
-    print("Trained Baseline_CRF model with {} iterations".format(iterations))
-
-
-def main():
+def run_model(number_of_conversations, train_data_percent):
     training_dir_path = "trainData"
-    test_dir_path = "testData"
-    output_file_name = "result.txt"
-    binary_model_file = 'baseline_crfmodel'
+    test_dir_path = "testData\\"
 
     start_time = time.time()
+    test_train_split(number_of_conversations, train_data_percent, training_dir_path, test_dir_path)
     test_accuracy(training_dir_path, test_dir_path)
-    # test_for_accuracy(training_dir_path, binary_model_file, test_dir_path)
-    # load_training_data(training_dir_path)
-    # train_crf_model(binary_model_file)
-    # make_prediction(test_dir_path, binary_model_file, output_file_name)
+
     print("--- %s seconds ---" % (time.time() - start_time))
-
-
-# baseline_crf.py
-if __name__ == "__main__": main()
