@@ -2,6 +2,7 @@ import pandas as pd
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+import os
 
 '''
 ->This file is used to extract the various conversations in the file.
@@ -184,6 +185,9 @@ def extract_conversation():
             temp_df.index = temp_df.index + 1
 
 
-train_path = "C:/Users/mborah/Desktop/PythonProjects/SentenceLabelling/trainData/"
-data_path = "C:/Users/mborah/Desktop/PythonProjects/SentenceLabelling/xboxDataId.csv"
+cwd = os.getcwd()
+directory = str(cwd)
+directory = directory.replace("preProcess", "")
+train_path = directory + "\\trainData\\"
+data_path = directory + "\\data\\xboxDataId.csv"
 extract_conversation()

@@ -10,9 +10,12 @@
 __pycache__/
 *.py[cod]
 
+*.pyc
+
 # C extensions
 *.so
 
+featureGenerator/__pycache__/
 data/
 output/
 work_dir/
@@ -20,6 +23,10 @@ work_dir/
 venv/
 .idea/
 .idea/*
+
+traindata/
+testdata/
+output/
 
 SentenceLabelling/.idea/
 SentenceLabelling/venv/
