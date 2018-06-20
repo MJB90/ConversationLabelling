@@ -8,6 +8,7 @@ from sklearn.metrics import accuracy_score
 import numpy as np
 from sklearn_crfsuite import CRF
 import pandas as pd
+import operator
 
 labels = {'REQ': 0, 'ANSW': 1, 'COMPLIM': 2, 'ANNOU': 3, 'THK': 4, 'RESPOS': 5, 'APOL': 6, 'RCPT': 7, 'COMPLAINT': 8}
 
@@ -69,6 +70,8 @@ def test_accuracy(training_dir_path, test_dir_path):
     print(y_prediction)
 
     print("CRF :" + str(accuracy_score(truths, predictions)))
+    # for w in sorted(crf.transition_features_, key=crf.transition_features_.get, reverse=True):
+    #     print(str(w) + ":" + str(crf.transition_features_[w]))
 
 
 def test_train_split(number_of_conversations, train_data_percent, training_dir_path, test_dir_path):

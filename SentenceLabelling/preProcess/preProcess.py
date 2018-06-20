@@ -156,6 +156,9 @@ def extract_conversation(train_path, data_path):
 
             sentence = row['utterance']
 
+            # Convert to lower case
+            sentence = sentence.lower()
+
             # Replace http... with url
             sentence = replace_http_url(sentence)
 

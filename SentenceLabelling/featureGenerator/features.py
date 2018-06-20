@@ -97,6 +97,11 @@ def get_features(utterances, istrain, tfid_vector, start_index_tfid_vector):
         for key, value in dict.items():
             utterance_features.extend([str(key)+"="+str(value)])
 
+        # Append isThank you if sentence contains thank or thanks
+        if utterance.utterance.find('thank') or utterance.utterance.find('thanks'):
+            utterance_features.extend(["thank="+"1"])
+        else:
+            utterance_features.extend(["thank="+"0"])
         # Append the utterance features to the feature list of training data
         x_seq.append(utterance_features)
         y_seq.append(utterance_label)
