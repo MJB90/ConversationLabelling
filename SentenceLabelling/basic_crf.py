@@ -72,6 +72,7 @@ def test_accuracy(training_dir_path, test_dir_path):
     print("CRF :" + str(accuracy_score(truths, predictions)))
     # for w in sorted(crf.transition_features_, key=crf.transition_features_.get, reverse=True):
     #     print(str(w) + ":" + str(crf.transition_features_[w]))
+    print(crf.state_features_)
 
 
 def test_train_split(number_of_conversations, train_data_percent, training_dir_path, test_dir_path):
