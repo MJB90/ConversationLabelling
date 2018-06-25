@@ -69,10 +69,18 @@ def test_accuracy(training_dir_path, test_dir_path):
     print(y_test)
     print(y_prediction)
 
-    print("CRF :" + str(accuracy_score(truths, predictions)))
+    test_ = str(accuracy_score(truths, predictions))
     # for w in sorted(crf.transition_features_, key=crf.transition_features_.get, reverse=True):
     #     print(str(w) + ":" + str(crf.transition_features_[w]))
-    print(crf.state_features_)
+
+    # Testing on training data without label
+    x_test, y_test = get_conversation_data(training_dir_path, False)
+    y_prediction = crf.predict(x_test)
+
+    predictions = np.array([labels[tag] for row in y_prediction for tag in row])
+    truths = np.array([labels[tag] for row in y_test for tag in row])
+    train_ = str(accuracy_score(truths, predictions))
+    return test_ , train_
 
 
 def test_train_split(number_of_conversations, train_data_percent, training_dir_path, test_dir_path):
@@ -100,6 +108,9 @@ def run_model(number_of_conversations, train_data_percent):
 
     start_time = time.time()
     test_train_split(number_of_conversations, train_data_percent, training_dir_path, test_dir_path)
-    test_accuracy(training_dir_path, test_dir_path)
+    test_, train_ = test_accuracy(training_dir_path, test_dir_path)
+
+    print("CRF train accuracy :" + str(train_))
+    print("CRF test accuracy :" + str(test_))
 
     print("--- %s seconds ---" % (time.time() - start_time))
