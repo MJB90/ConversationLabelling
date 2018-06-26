@@ -10,7 +10,6 @@ previous-previous_tag,
 tokens,
 pos,
 num_of_punctuation,
-bow,
 tf_id_vector
 ]
 '''
@@ -27,10 +26,11 @@ def get_pos_tokens(utterance):
 
 def get_num_punctuation(utterance):
     result = 0
-    result += utterance.utterance.count('#')
-    result += utterance.utterance.count('?')
-    result += utterance.utterance.count('!')
-    result += utterance.utterance.count(',')
+    if utterance.utterance:
+        result += utterance.utterance.count('#')
+        result += utterance.utterance.count('?')
+        result += utterance.utterance.count('!')
+        result += utterance.utterance.count(',')
     return result
 
 
@@ -94,14 +94,15 @@ def get_features(utterances, istrain, tfid_vector, start_index_tfid_vector):
         utterance_features.extend(["thread_number="+str(utterance.thread_number)])
 
         # Append the tfid vector containing max of 3 grams
-        for key, value in dict.items():
-            utterance_features.extend([str(key)+"="+str(value)])
+        # for key, value in dict.items():
+        #     utterance_features.extend([str(key)+"="+str(value)])
 
         # Append isThank you if sentence contains thank or thanks
-        if utterance.utterance.find('thank') or utterance.utterance.find('thanks'):
+        if utterance.utterance and (utterance.utterance.find('thank') or utterance.utterance.find('thanks')):
             utterance_features.extend(["thank="+"1"])
         else:
             utterance_features.extend(["thank="+"0"])
+
         # Append the utterance features to the feature list of training data
         x_seq.append(utterance_features)
         y_seq.append(utterance_label)

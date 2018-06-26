@@ -185,6 +185,7 @@ def extract_conversation(train_path, data_path):
 
             temp_df.loc[-1] = [to_insert_speaker, num_utterance, row['label'], row['type'], pos_tag, sentence]
             temp_df.index = temp_df.index + 1
+
     return count
 
 
