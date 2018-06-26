@@ -1,6 +1,7 @@
 import glob
 import os
 from featureGenerator import features
+from featureGenerator import featureDictionary
 from featureGenerator import tfidf
 from helper_tool import get_data_file_name
 import time
@@ -10,7 +11,8 @@ from sklearn_crfsuite import CRF
 import pandas as pd
 import operator
 
-labels = {'REQ': 0, 'ANSW': 1, 'COMPLIM': 2, 'ANNOU': 3, 'THK': 4, 'RESPOS': 5, 'APOL': 6, 'RCPT': 7, 'COMPLAINT': 8}
+labels = {'REQ': 0, 'ANSW': 1, 'COMPLIM': 2, 'ANNOU': 3, 'THK': 4, 'RESPOS': 5, 'APOL': 6, 'RCPT': 7, 'COMPLAINT': 8,
+          'GREET': 9, 'SOLVED': 10, 'OTH': 11}
 
 
 def cal_tf_idf(dir_path):
@@ -37,7 +39,7 @@ def get_conversation_data(dir_path, is_train):
     start_index_tfid = 0
     for conversation in all_conversations:
         utterances = conversation["data"]
-        x_seq, y_seq = features.get_features(utterances, is_train, tfid_vector, start_index_tfid)
+        x_seq, y_seq = featureDictionary.get_features(utterances, is_train, tfid_vector, start_index_tfid)
         x.append(x_seq)
         y.append(y_seq)
         start_index_tfid += len(utterances)
@@ -66,26 +68,27 @@ def test_accuracy(training_dir_path, test_dir_path):
     predictions = np.array([labels[tag] for row in y_prediction for tag in row])
     truths = np.array([labels[tag] for row in y_test for tag in row])
 
-    print(y_test)
-    print(y_prediction)
-
+    # Get test accuracy
     test_ = str(accuracy_score(truths, predictions))
     # for w in sorted(crf.transition_features_, key=crf.transition_features_.get, reverse=True):
     #     print(str(w) + ":" + str(crf.transition_features_[w]))
 
+    print(crf.state_features_)
     # Testing on training data without label
     x_test, y_test = get_conversation_data(training_dir_path, False)
     y_prediction = crf.predict(x_test)
 
     predictions = np.array([labels[tag] for row in y_prediction for tag in row])
     truths = np.array([labels[tag] for row in y_test for tag in row])
+
+    # Get train accuracy
     train_ = str(accuracy_score(truths, predictions))
-    return test_ , train_
+    return test_, train_
 
 
 def test_train_split(number_of_conversations, train_data_percent, training_dir_path, test_dir_path):
     num_in_train = number_of_conversations * train_data_percent
-    num_in_test = number_of_conversations - num_in_train
+    num_in_test = int(number_of_conversations - num_in_train)
     dialog_filenames = sorted(glob.glob(os.path.join(training_dir_path, "*.csv")))
     count = 0
     cwd = os.getcwd()
