@@ -1,4 +1,4 @@
-import re
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 '''
 Feature format:
@@ -13,6 +13,7 @@ num_of_punctuation,
 tf_id_vector
 ]
 '''
+sid = SentimentIntensityAnalyzer()
 
 
 def is_thank_you(utterance):
@@ -44,7 +45,7 @@ def get_num_punctuation(utterance):
 # Generating features for one conversation at a time i.e utterances belongs to a single conversation
 
 
-def get_features(utterances, istrain, tfid_vector, start_index_tfid_vector):
+def get_features(utterances, istrain, tfid_vector, start_index_tfid_vector, is_Convo_label):
     x_seq = []
     y_seq = []
     utterance_no = 0
@@ -66,66 +67,75 @@ def get_features(utterances, istrain, tfid_vector, start_index_tfid_vector):
                 current_act_tag = utterances[utterance_no].label
         current_act_tag = utterances[utterance_no].label
 
+        ss = sid.polarity_scores(str(utterance.utterance))
         tokens, pos_tags = get_pos_tokens(utterance)
         num_punctuation = get_num_punctuation(utterance)
         is_thank = is_thank_you(utterance)
         features = {
             'bias': 1, 'firstUtterance': first_utterance, 'speakerChange': speaker_change,
             'tokens': tokens, 'pos': pos_tags, 'CP': num_punctuation, 'thank': is_thank,
-            'tfid': dict
+            'tfid': dict, 'sentiment_scores': ss
         }
 
+        # Features of the previous utterance
         if istrain:
             if utterance_no > 1:
                 prev_utterance = utterances[utterance_no - 1]
+                ss = sid.polarity_scores(str(prev_utterance.utterance))
                 tokens, pos_tags = get_pos_tokens(prev_utterance)
                 num_punctuation = get_num_punctuation(prev_utterance)
                 is_thank = is_thank_you(prev_utterance)
                 features.update({
                     '-1tag': prev_utterance.label, '-1tokens': tokens, '-1pos': pos_tags, '-1CP': num_punctuation,
-                    '-1thank': is_thank
+                    '-1thank': is_thank, '-1sentiment_scores': ss
                 })
             else:
                 features['BOS'] = True
         else:
             if utterance_no > 1:
                 prev_utterance = utterances[utterance_no - 1]
+                ss = sid.polarity_scores(str(prev_utterance.utterance))
                 tokens, pos_tags = get_pos_tokens(prev_utterance)
                 num_punctuation = get_num_punctuation(prev_utterance)
                 is_thank = is_thank_you(prev_utterance)
                 features.update({
                     '-1tag': "", '-1tokens': tokens, '-1pos': pos_tags, '-1CP': num_punctuation,
-                    '-1thank': is_thank
+                    '-1thank': is_thank, '-1sentiment_scores': ss
                 })
             else:
                 features['BOS'] = True
 
+        # Features of post utterance
         if istrain:
             if utterance_no < len(utterances) - 1:
                 post_utterance = utterances[utterance_no + 1]
+                ss = sid.polarity_scores(str(post_utterance.utterance))
                 tokens, pos_tags = get_pos_tokens(post_utterance)
                 num_punctuation = get_num_punctuation(post_utterance)
                 is_thank = is_thank_you(post_utterance)
                 features.update({
                     '+1tag': post_utterance.label, '+1tokens': tokens, '+1pos': pos_tags, '+1CP': num_punctuation,
-                    '+1thank': is_thank
+                    '+1thank': is_thank, '+1sentiment_scores': ss
                 })
             else:
                 features['EOS'] = True
         else:
             if utterance_no < len(utterances) - 1:
                 post_utterance = utterances[utterance_no + 1]
+                ss = sid.polarity_scores(str(post_utterance.utterance))
                 tokens, pos_tags = get_pos_tokens(post_utterance)
                 num_punctuation = get_num_punctuation(post_utterance)
                 is_thank = is_thank_you(post_utterance)
                 features.update({
                     '+1tag': "", '+1tokens': tokens, '+1pos': pos_tags, '+1CP': num_punctuation,
-                    '+1thank': is_thank
+                    '+1thank': is_thank, '+1sentiment_scores': ss
                 })
             else:
                 features['EOS'] = True
-
-        utterance_label = utterance.label
+        if is_Convo_label:
+            utterance_label = utterance.label
+        else:
+            utterance_label = utterance.type
 
         # Append the tfid vector containing max of 3 grams
         # for key, value in dict.items():

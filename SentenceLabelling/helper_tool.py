@@ -31,18 +31,17 @@ def get_data_file_name(data_dir):
     data_dir - a dir with csv files containing dialogs"""
     dialog_filenames = sorted(glob.glob(os.path.join(data_dir, "*.csv")))
     for dialog_filename in dialog_filenames:
-        print(dialog_filename)
+        # print(dialog_filename)
         yield {"fileName": dialog_filename, "data": get_utterances_from_filename(dialog_filename)}
 
 
-DialogUtterance = namedtuple("DialogUtterance", ("speaker", "thread_number", "label", "pos", "utterance"))
+DialogUtterance = namedtuple("DialogUtterance", ("speaker", "thread_number", "label", "type", "pos", "utterance"))
 
 PosTag = namedtuple("PosTag", ("token", "pos"))
 
 
 def _dict_to_dialog_utterance(du_dict):
     """Private method for converting a dict to a DialogUtterance."""
-    du_dict.pop("type", None)
 
     # Remove anything with
     for k, v in du_dict.items():
