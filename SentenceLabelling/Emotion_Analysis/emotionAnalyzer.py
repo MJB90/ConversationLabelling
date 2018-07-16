@@ -61,7 +61,7 @@ def run_pre_process():
     cwd = os.getcwd()
     directory = str(cwd)
     train_path = directory + "\\emotionAnalysisData\\"
-    data_path = directory + "\\Edata\\xboxDataId.csv"
+    data_path = directory + "\\edata\\xboxDataId.csv"
     count = extract_conversation(train_path, data_path)
     return count
 
