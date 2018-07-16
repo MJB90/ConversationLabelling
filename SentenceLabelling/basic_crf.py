@@ -70,6 +70,7 @@ def test_accuracy(training_dir_path, test_dir_path, is_Convo_label):
               all_possible_transitions=False)
 
     crf.fit(x_train, y_train)
+
     y_prediction = crf.predict(x_test)
 
     predictions = np.array([curr_labels[tag] for row in y_prediction for tag in row])
@@ -93,6 +94,8 @@ def test_accuracy(training_dir_path, test_dir_path, is_Convo_label):
     predictions = np.array([curr_labels[tag] for row in y_prediction for tag in row])
     truths = np.array([curr_labels[tag] for row in y_test for tag in row])
 
+    sf = crf.state_features_
+    print(type(sf))
     # Get train accuracy
     train_ = str(accuracy_score(truths, predictions))
     return test_, train_

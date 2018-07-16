@@ -29,6 +29,7 @@ def get_pos_tokens(utterance):
         for token_pos in utterance.pos:
             tokens.append('TOKEN_' + token_pos.token)
             pos_tags.append('POS_' + token_pos.pos)
+
     return tokens, pos_tags
 
 
