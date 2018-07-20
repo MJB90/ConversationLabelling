@@ -1,6 +1,5 @@
 import glob
 import os
-from featureGenerator import features
 from featureGenerator import featureDictionary
 from featureGenerator import tfidf
 from helper_tool import get_data_file_name
@@ -11,10 +10,23 @@ from sklearn_crfsuite import CRF
 import pandas as pd
 from sklearn.metrics import classification_report
 
+# The following global dictionaries are used to calculate the accuracy of
+# the conversation issue labels and engagement labels
+
 labels = {'REQ': 0, 'ANSW': 1, 'COMPLIM': 2, 'ANNOU': 3, 'THK': 4, 'RESPOS': 5, 'APOL': 6, 'RCPT': 7, 'COMPLAINT': 8,
           'GREET': 9, 'SOLVED': 10, 'OTH': 11}
 
 type_labels = {'OP': 0, 'SV': 1, 'CL': 2, 'CC': 3}
+
+
+'''
+The function below calculates the tf-idf vector.It gathers all the conversation in the
+list x sends it to the tf-idf calculator and returns the tf-idf vector
+
+parameter: dir_path --> path to the trainData folder
+
+return value --> the tf-idf vector
+'''
 
 
 def cal_tf_idf(dir_path):
@@ -33,6 +45,26 @@ def cal_tf_idf(dir_path):
     return tfid_vector
 
 
+'''
+The function below extracts all conversations in the training folder sends every conversation
+to the feature generator and gets the features in x_seq and labels in y_seq which is returned to 
+the crf model for fitting the data
+
+parameter: 
+dir_path ---> the path to the data file
+is_train ---> 1 for generating features of trained data
+              0 for generating features of test data
+              
+is_Convo_label ---> True for conversation_issue label
+                    False for Engagement label
+                    
+
+return value : the features of the conversation, the features of each conversation is in a
+               different list
+                     
+'''
+
+
 def get_conversation_data(dir_path, is_train, is_Convo_label):
     tfid_vector = cal_tf_idf(dir_path)
     all_conversations = list(get_data_file_name(dir_path))
@@ -46,6 +78,19 @@ def get_conversation_data(dir_path, is_train, is_Convo_label):
         y.append(y_seq)
         start_index_tfid += len(utterances)
     return x, y
+
+
+'''
+The function below trains the crf model and returns the accuracy
+
+parameter: training_dir_path ---> the folder path to the train data
+           test_dir_path ---> the folder path to the test data
+           
+           is_Convo_label ---> True for conversation_issue label
+                                False for Engagement label
+                    
+return value : the accuracies 
+'''
 
 
 def test_accuracy(training_dir_path, test_dir_path, is_Convo_label):
@@ -101,6 +146,21 @@ def test_accuracy(training_dir_path, test_dir_path, is_Convo_label):
     return test_, train_
 
 
+'''
+The function below splits the conversations in the training data folder according to the
+train_data_percent and 100-train_data_percent is kept in the testing folder
+
+parameter:
+
+number_of_conversations --> total number of conversations (we get this from the preProcess Code
+train_data_percent ---> split percentage
+training_dir_path ---> path to the training folder
+test_dir_path ---> path to the testing folder
+
+return value : accuracies
+'''
+
+
 def test_train_split(number_of_conversations, train_data_percent, training_dir_path, test_dir_path):
     num_in_train = number_of_conversations * train_data_percent
     num_in_test = int(number_of_conversations - num_in_train)
@@ -120,12 +180,25 @@ def test_train_split(number_of_conversations, train_data_percent, training_dir_p
             break
 
 
+'''
+The function below runs the entire CRF model
+
+parameter:
+
+number_of_conversations --> total number of conversations (we get this from the preProcess Code
+train_data_percent ---> split percentage
+
+return value: None
+'''
+
+
 def run_model(number_of_conversations, train_data_percent):
     training_dir_path = "trainData"
     test_dir_path = "testData\\"
 
     start_time = time.time()
     test_train_split(number_of_conversations, train_data_percent, training_dir_path, test_dir_path)
+
     test_convo, train_convo = test_accuracy(training_dir_path, test_dir_path, True)
 
     test_, train_ = test_accuracy(training_dir_path, test_dir_path, False)

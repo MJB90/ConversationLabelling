@@ -65,3 +65,5 @@ def run_pre_process():
     count = extract_conversation(train_path, data_path)
     return count
 
+
+run_pre_process()

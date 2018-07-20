@@ -14,10 +14,22 @@ from nltk.tokenize import word_tokenize
 positive_emoticon = [':-P', ':P', ':-D', ':D', ':p', '=P', '=D', '<3', '>:3', ':-)',
                      ':)', '>-]', '=)', ':o)', ':-*', ':*', ';-)']
 negative_emoticon = [":'(", ';*(', '>:[', ':-(', ':(']
+
+
+# The below global variables are used in find_utterance_number to find the utterance position
+# in a particular conversation
 utterance_number = 0
 current_speaker = ""
 first_speaker = True
 previous_speaker = ""
+
+'''
+This functions replaces the emoticons with posemt and negemt
+
+parameters: utterance of a conversation
+
+return value : the utterance with replaced emoticons
+'''
 
 
 def replace_emoticon(sentence):
@@ -31,6 +43,20 @@ def replace_emoticon(sentence):
         elif word in negative_emoticon:
             sentence = sentence.replace(word, "NEGEMT")
     return sentence
+
+
+'''
+The function below finds the utterance position in the conversation thread
+Eg: 
+SPEAKER         TEXT                UTTERANCE_POSITION
+agent           hi                          1
+agent           how are you                 2
+customer        I am fine                   1
+
+parameters : current speaker id
+
+return value : position of the utterance
+'''
 
 
 def find_utterance_number(speaker):
@@ -52,6 +78,15 @@ def find_utterance_number(speaker):
 # and also extra "/"
 
 
+'''
+The function below replaces the words beginning with http as url
+
+parameters : the utterance
+
+return value: the utterance with http.... replaced
+'''
+
+
 def replace_http_url(sentence):
     words = sentence.split()
     result = ""
@@ -62,6 +97,15 @@ def replace_http_url(sentence):
             result = result + word + " "
     result = result.replace("/", "")
     return result
+
+
+'''
+The function below replaces all @_usernames as username
+
+parameter : the utterance
+
+return value : the utterance with @ username replaced 
+'''
 
 
 def replace_username(sentence):
@@ -75,6 +119,15 @@ def replace_username(sentence):
     return result
 
 
+'''
+The function below replaces all email addresses with email
+
+parameter : the utterance
+
+return value : the utterance with the email address replaced
+'''
+
+
 def replace_email(sentence):
     words = sentence.split()
     result = ""
@@ -84,6 +137,15 @@ def replace_email(sentence):
         else:
             result = result + word + " "
     return result
+
+
+'''
+This function removes all the stop words from the utterances
+
+parameter : the utterance
+
+return value : the utterance with all the stop words removed
+'''
 
 
 def remove_stop_words(sentence):
@@ -99,6 +161,15 @@ def remove_stop_words(sentence):
     return result
 
 
+'''
+This function replaces all numeric values with the word number
+
+parameter: the utterance
+
+return value : the utterance with numerical values removed
+'''
+
+
 def replace_numbers(sentence):
     words = sentence.split()
     result = ""
@@ -110,6 +181,16 @@ def replace_numbers(sentence):
     return result
 
 
+'''
+The function below finds the parts of speech of each word in the utterance
+
+parameter: the utterance
+
+return value : the parts of speech in the following sentence format
+                customer/NN very/ADJ
+'''
+
+
 def get_pos(sentence):
     pos_tag = ""
     for word, pos in nltk.pos_tag(nltk.word_tokenize(str(sentence))):
@@ -117,13 +198,42 @@ def get_pos(sentence):
     return pos_tag
 
 
+'''
+This function does the following steps:
+--> iterate over each row of the data file
+
+--> apply cleaning steps for each utterance
+
+--> whenever a blank row is found.This marks the end of a conversation
+    and store the cleaned data in a csv file and clear the contents of the 
+    data frame to store new conversation
+    
+--> keep counting the number of conversations uploaded 
+
+parameters : train_path --> folder where the conversations are kept
+            data_path ---> folder where the main data file is located
+            
+
+return value : total number of conversations saved
+'''
+
+
 def extract_conversation(train_path, data_path):
+    # Temporary data frame to store the conversation
     temp_df = pd.DataFrame(columns=['speaker', 'thread_number', 'label', 'type', 'pos', 'utterance'])
+
+    # variable to count total number of conversations
     count = 0
+
+    # Map to name different speakers
     existing_speakers = {}
+    # speaker name starts with A which is followed by other alphabets
     speaker_number = 'A'
+    # variable to count the total number of speakers in a conversation
     speaker_count = 0
     global first_speaker
+
+    # Read the data file
     df = pd.read_csv(data_path, skip_blank_lines=False)
 
     for index, row in df.iterrows():
@@ -139,6 +249,9 @@ def extract_conversation(train_path, data_path):
             temp_df = temp_df.iloc[0:0]
             existing_speakers.clear()
             speaker_count = 0
+
+            # update the first_speaker as a new conversation will begin in the
+            # next iteration
             first_speaker = True
             print("Conversation " + str(count) + "is uploaded!")
 
@@ -183,10 +296,18 @@ def extract_conversation(train_path, data_path):
             # Get the conversation thread number
             num_utterance = find_utterance_number(to_insert_speaker)
 
+            # Keep adding processed to temporary data frame
+            # This data belongs to a single conversation
             temp_df.loc[-1] = [to_insert_speaker, num_utterance, row['label'], row['type'], pos_tag, sentence]
             temp_df.index = temp_df.index + 1
 
     return count
+
+
+'''
+The function below runs the entire pre-processing algorithm and returns the
+total number of conversations
+'''
 
 
 def run_pre_process(train_path, data_path):
