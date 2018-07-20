@@ -45,6 +45,15 @@ def get_num_punctuation(utterance):
 
 # Generating features for one conversation at a time i.e utterances belongs to a single conversation
 
+'''
+parameters :
+utterances ---> the data of a conversation
+tf-idf_vector --> the calculated tf-idf_vector
+start_index_tf-idf_vector ---> start index of tf-idf vector for this conversation
+is_Convo_label ---> True for Conversation_issue label
+                    False for engagement label
+'''
+
 
 def get_features(utterances, istrain, tfid_vector, start_index_tfid_vector, is_Convo_label):
     x_seq = []
