@@ -1,18 +1,5 @@
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
-'''
-Feature format:
-result = [
-is_first_utterance,
-is_speaker_change,
-previous_tag,
-previous-previous_tag,
-tokens,
-pos,
-num_of_punctuation,
-tf_id_vector
-]
-'''
 sid = SentimentIntensityAnalyzer()
 
 
@@ -20,6 +7,11 @@ def is_thank_you(utterance):
     if utterance.utterance and (utterance.utterance.find('thank') or utterance.utterance.find('thanks')):
         return 1
     return 0
+
+
+'''
+The function below finds gets the tokens and the parts of speech from the data
+'''
 
 
 def get_pos_tokens(utterance):
